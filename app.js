@@ -16,4 +16,8 @@ app.use(bodyParser.json())
 
 //rutas base
 
+app.get('/pruebas', function(req, res){
+    res.status(200).send({message: "Bienvenido a la API"})
+})
+
 module.exports = app
