@@ -3,7 +3,7 @@
 let mongoose = require('mongoose')
 let schema = mongoose.Schema
 
-let songSchema = Schema({
+let songSchema = schema({
     number:Number,
     name:String,
     duration:String,
