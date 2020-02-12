@@ -8,5 +8,6 @@ let api = express.Router()
 //ruta y método que se ejecuta en esa ruta.
 api.get('/probando-controlador',userController.pruebas)
 api.post('/register',userController.saveUser)
+api.post('/login',userController.loginUser)
 
 module.exports = api

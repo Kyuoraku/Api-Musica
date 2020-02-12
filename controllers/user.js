@@ -1,7 +1,7 @@
 'use strict'
 
 let bcrypt = require('bcrypt-nodejs')
-let user = require('../models/user')
+let User = require('../models/user')
 
 function pruebas(req, res){
 
@@ -15,30 +15,30 @@ function pruebas(req, res){
 
 function saveUser(req, res){
 
-    let usr = new user()
-    //se recolectan los datos del cuerpo de la petición
-    let param = req.body
+    let user = new User()
+    let params = req.body
 
-    console.log(param)
+    console.log(params)
 
-    usr.name = param.name
-    usr.surname = param.surname
-    usr.email = param.email
-    usr.role = 'ROLE_USER'
-    usr.image = 'null'
+    user.name = params.name
+    user.surname = params.surname
+    user.email = params.email
+    user.role = 'ROLE_USER'
+    user.image = 'null'
 
     //se guarda en bbdd
 
-    if(param.password){
+    if(params.password){
 
-        bcrypt.hash(usr.password, null, null, function(err, hash){
+        
+        bcrypt.hash(params.password, null, null, function(err, hash){
 
-            usr.password = hash
+            user.password = hash
 
-            if (usr.name != null && usr.surname != null && usr.email != null){
+            if (user.name != null && user.surname != null && user.email != null){
 
                 //se guarda en mongo
-                usr.save((err, userStored) => {
+                user.save((err, userStored) => {
 
                     if(err){
                         res.status(500).send({message:'Error al guardar el usuario.'})
@@ -52,7 +52,6 @@ function saveUser(req, res){
 
                 })
 
-
             }else{
                 res.status(200).send({message:'Introduce los datos que faltan.'})
             }
@@ -65,8 +64,42 @@ function saveUser(req, res){
 
 }
 
+function loginUser(req, res){
+
+    let params = req.body
+
+    let email = params.email
+    let password = params.password
+
+    User.findOne({email: email.toLowerCase()}, (err,user)=>{
+        if (err){
+            res.status(500).send({message:'Error en la petición.'})
+        }else{
+            if (!user) {
+                res.status(404).send({message:'El usuario no existe'})
+            } else {
+                bcrypt.compare(password, user.password, function(err, check){
+
+                    if(check){
+                        if(params.gethash){
+                            //devolver un token de jwt
+                        }else{
+                            res.status(200).send({user})
+                        }
+                    }else{
+                        res.status(402).send({message:'Credenciales no correctas.'})
+                    }
+
+                })
+            }
+        }
+
+    })
+
+}
 module.exports = {
     //lista de métodos que exportamos, o sea, todos los que haya:
     pruebas,
-    saveUser
+    saveUser,
+    loginUser
 }
